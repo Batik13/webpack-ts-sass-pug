@@ -1,0 +1,21 @@
+html {
+  font-family: generalFont;
+}
+
+h1 {
+  color: $black;
+}
+.container {
+  &__subtitle {
+    color: $black;
+    display: block;
+    height: 140px;
+    background: url("../assets/images/webpack.png");
+    display: flex;
+    justify-content: center;
+
+    @include mq(md) {
+      color:green;
+    }
+  }
+}
