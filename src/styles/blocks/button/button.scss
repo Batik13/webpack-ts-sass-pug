@@ -1,0 +1,7 @@
+.button {
+  $block: &;
+  
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid #000;
+}
