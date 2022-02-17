@@ -25,14 +25,21 @@ fs.writeFile("src/pug/blocks/libs/_libs.pug", mixins, (err) => {
 
 const paths = globule.find(["src/pug/pages/**/*.pug"]);
 
+fs.writeFile("src/pug/temp/_environment.pug", `block variables\n\  - var ENV = '${process.env.NODE_ENV}'`, function (err) {
+  if (err) {
+    return console.log(err);
+  }
+  console.log("Environment variable file created.");
+});
+
 module.exports = {
   mode: config.mode,
   entry: {
     scripts: './src/index.ts',
   },
   output: {
-    filename: 'js/[name].js',
-    assetModuleFilename: "assets/[name][ext][query]",
+    filename: 'assets/js/[name].js',
+    assetModuleFilename: "assets/img/[name][ext][query]",
     clean: true,
   },
   devServer: {
@@ -45,7 +52,7 @@ module.exports = {
   devtool: config.devtool,
   plugins: [
     new MiniCssExtractPlugin({
-      filename: 'css/styles.css'
+      filename: 'assets/css/styles.css'
     }),
     ...paths.map((path) => {
       return new HtmlWebpackPlugin({
@@ -89,6 +96,9 @@ module.exports = {
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
+        generator: {
+          filename: 'assets/fonts/[name][ext]'
+        }
       },
       {
         test: /\.pug$/,
