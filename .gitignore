@@ -12,6 +12,3 @@ yarn-error.log
 yarn.lock
 .yarnclean
 .vscode
-
-# files created by node.js
-src/pug/temp
