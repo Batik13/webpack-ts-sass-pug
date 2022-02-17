@@ -1,7 +1,10 @@
-include ../libs/_libs
+extends ../layout
 
-doctype html
-html(lang='en')
-  include ../partials/_head
-  body
+block content
+  +header
+  main
     h1 404
+    div
+      svg
+        use(href="assets/images/circle.svg#circle")
+  +footer

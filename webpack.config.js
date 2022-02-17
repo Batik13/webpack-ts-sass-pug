@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const globule = require("globule");
+const fs = require("fs");
 
 const config = {
   mode: 'development',
@@ -10,6 +12,18 @@ if (process.env.NODE_ENV === 'production') {
   config.mode = 'production';
   config.devtool = 'hidden-source-map';
 }
+
+const mixins = globule
+  .find(["src/pug/blocks/libs/**/_*.pug", "!src/pug/blocks/libs/_libs.pug"])
+  .map((path) => path.split('/').pop())
+  .reduce((acc, currentItem) => acc + `include ${currentItem}\n`, ``);
+
+fs.writeFile("src/pug/blocks/libs/_libs.pug", mixins, (err) => {
+  if (err) throw err;
+  console.log("Mixins are generated automatically!");
+});
+
+const paths = globule.find(["src/pug/pages/**/*.pug"]);
 
 module.exports = {
   mode: config.mode,
@@ -29,22 +43,15 @@ module.exports = {
     }
   },
   devtool: config.devtool,
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-    },
-  },
   plugins: [
     new MiniCssExtractPlugin({
       filename: 'css/styles.css'
     }),
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: "./src/pug/pages/index.pug"
-    }),
-    new HtmlWebpackPlugin({
-      filename: '404.html',
-      template: "./src/pug/pages/404.pug"
+    ...paths.map((path) => {
+      return new HtmlWebpackPlugin({
+        template: path,
+        filename: `${path.split(/\/|.pug/).splice(-2, 1)}.html`,
+      });
     })
   ],
   module: {
@@ -76,47 +83,17 @@ module.exports = {
         ],
       },
       {
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        test: /\.(png|svg|jpg|jpeg|gif|webp)$/i,
         type: 'asset/resource',
       },
-      // {
-      //   test: /\.svg$/,
-      //   type: 'asset/resource',
-      //   generator: {
-      //     filename: 'images/[name][ext]'
-      //   },
-      //   use: 'svgo-loader'
-      // },
-      // {
-      //   test: /\.(png)$/i,
-      //   type: 'asset/resource',
-      //   generator: {
-      //     filename: 'images/[name][ext][query]',
-      //   },
-      // },
-      // {
-      //   test: /\.(jpg)$/i,
-      //   type: 'asset/resource',
-      //   generator: {
-      //     filename: 'images/[name][ext][query]',
-      //   },
-      // },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
-        generator: {
-          filename: 'fonts/[name][ext]',
-        },
       },
       {
         test: /\.pug$/,
         loader: 'pug-loader',
         exclude: /(node_modules|bower_components)/,
-      },
-      {
-        test: /\.ts$/,
-        use: 'ts-loader',
-        include: [path.resolve(__dirname, 'src')]
       },
       {
         test: /\.m?js$/,
@@ -127,7 +104,12 @@ module.exports = {
           //     presets: ['@babel/preset-env']
           // }
         }
-      }
+      },
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        include: [path.resolve(__dirname, 'src')]
+      },
     ]
   },
   resolve: {

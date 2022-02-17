@@ -1,0 +1,5 @@
+mixin img(img, alt='image', cls)
+  if (ENV === 'development')
+    img(src=`../../assets/images/${img}` alt=`${alt}` class=cls)
+  if (ENV === 'production')
+    img(src=require(`../../assets/images/${img}`) alt=`${alt}` class=cls)
